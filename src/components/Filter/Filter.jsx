@@ -1,13 +1,21 @@
-import css from './Filter.module.css';
+import { useSelector, useDispatch } from 'react-redux';
+import { setFilter } from 'redux/contactFilter';
 
-export const Filter = ({ filter, whenFilterChange }) => {
+const Filter = () => {
+  const { filter } = useSelector(state => state.filter);
+  const dispatch = useDispatch();
+
   return (
-    <input
-      type="text"
-      placeholder="Search contacts"
-      value={filter}
-      onChange={whenFilterChange}
-      className={css.filterInput}
-    />
+    <>
+      <input
+        placeholder="Search for"
+        type="text"
+        name="filter"
+        value={filter}
+        onChange={e => dispatch(setFilter(e.target.value))}
+      />
+    </>
   );
 };
+
+export default Filter;

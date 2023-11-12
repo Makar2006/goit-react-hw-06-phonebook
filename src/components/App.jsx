@@ -1,63 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import Notiflix from 'notiflix';
-import ContactForm from './ContactForm/ContactForm';
-import { ContactList } from './ContactList/ContactList';
-import { Filter } from './Filter/Filter';
+import { useDispatch, useSelector } from 'react-redux';
+import ContactForm from 'components/ContactForm/ContactForm';
+import ContactList from 'components/ContactList/ContactList';
+import Filter from 'components/Filter/Filter';
+import { removeContact } from 'redux/contactSlice';
 
-function App() {
-  const [contacts, setContacts] = useState([]);
-  const [filter, setFilter] = useState('');
+export default function App() {
+  const { contacts } = useSelector(state => state.contacts);
+  const dispatch = useDispatch();
 
-  useEffect(() => {
-    const storedContacts = localStorage.getItem('contacts');
-
-    if (storedContacts) {
-      setContacts(JSON.parse(storedContacts));
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('contacts', JSON.stringify(contacts));
-  }, [contacts]);
-
-  const whenFilter = e => {
-    setFilter(e.currentTarget.value);
+  const onRemoveContact = id => {
+    dispatch(removeContact({ id }));
   };
 
-  const filterContacts = () => {
-    return contacts.filter(contact =>
-      contact.name.toLowerCase().includes(filter.toLowerCase())
-    );
-  };
-
-  const addCont = newCont => {
-    const isDuplicateContact = contacts.some(
-      contact => contact.name.toLowerCase() === newCont.name.toLowerCase()
-    );
-
-    if (isDuplicateContact) {
-      Notiflix.Report.warning('Warning', 'This contact already exists', 'Ok');
-      return;
-    }
-
-    setContacts(prevContacts => [newCont, ...prevContacts]);
-  };
-
-  const deleteContact = contactIndex => {
-    setContacts(prevState =>
-      prevState.filter((_, index) => index !== contactIndex)
-    );
-  };
   return (
-    <>
+    <div>
       <h1>Phonebook</h1>
-      <ContactForm onSubmit={addCont}></ContactForm>
-
+      <ContactForm />
       <h2>Contacts</h2>
-      <Filter filter={filter} whenFilterChange={whenFilter} />
-      <ContactList contacts={filterContacts()} deleteContact={deleteContact} />
-    </>
+      {contacts.length === 0 ? (
+        <h3>No contacts</h3>
+      ) : (
+        <>
+          <Filter />
+          <ContactList onRemoveContact={onRemoveContact} />
+        </>
+      )}
+    </div>
   );
 }
-
-export default App;

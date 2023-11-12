@@ -1,64 +1,48 @@
-import React, { useState } from 'react';
-import css from './ContactForm.module.css';
+import { Formik, Field } from 'formik';
+import { nanoid } from 'nanoid';
+import { addContact } from 'redux/contactSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import * as yup from 'yup';
 
-function ContactForm({ onSubmit }) {
-  const [name, setName] = useState('');
-  const [number, setNumber] = useState('');
+export default function ContactForm() {
+  const initialValues = { name: '', number: '' };
+  const dispatch = useDispatch();
+  const { contacts } = useSelector(state => state.contacts);
 
-  const whenChange = e => {
-    const { name, value } = e.target;
-    if (name === 'name') {
-      setName(value);
-    } else if (name === 'number') {
-      setNumber(value);
+  const validSchema = yup.object().shape({
+    name: yup.string().min(2).max(20).required(),
+    number: yup.string().min(8).max(20).required(),
+  });
+
+  const onSubmit = (values, { resetForm }) => {
+    const Duplicate = contacts.some(contact => contact.name === values.name);
+    if (Duplicate) {
+      alert(`${values.name} is already created`);
+    } else {
+      const newState = { id: nanoid(), ...values };
+      dispatch(addContact(newState));
+      resetForm();
     }
-  };
-
-  const whenSubmit = e => {
-    e.preventDefault();
-    if (name === '' || number === '') {
-      alert('Please fill in all fields.');
-      return;
-    }
-    onSubmit({ name, number });
-    setName('');
-    setNumber('');
   };
 
   return (
-    <form onSubmit={whenSubmit} className={css.contactForm}>
-      <label>
-        <span className={css.formSpan}>Name:</span>
-        <input
-          type="text"
-          id="name"
-          name="name"
-          value={name}
-          onChange={whenChange}
-          pattern="^[a-zA-Zа-яА-Я]+([' \-][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*$"
-          title="Name may contain only letters, apostrophe, dash and spaces."
-          required
-          autoComplete="off"
-        />
-      </label>
-      <label>
-        <span className={css.formSpan}>Phone Number:</span>
-        <input
-          type="text"
-          id="number"
+    <Formik
+      initialValues={initialValues}
+      onSubmit={onSubmit}
+      validationSchema={validSchema}
+    >
+      <form>
+        <label htmlFor="nameId">Name</label>
+        <Field type="text" name="name" placeholder="Contact name" id="nameId" />
+        <label htmlFor="numId">Number</label>
+        <Field
+          type="tel"
           name="number"
-          value={number}
-          onChange={whenChange}
-          pattern="[0-9\-]+"
-          title="Phone number must be digits"
-          required
-          autoComplete="off"
+          placeholder="xxx-xxx-xx-xx"
+          id="numId"
         />
-      </label>
-      <button type="submit" className={css.formButton}>
-        Add Contact
-      </button>
-    </form>
+        <button type="submit">Add contact</button>
+      </form>
+    </Formik>
   );
 }
-export default ContactForm;
