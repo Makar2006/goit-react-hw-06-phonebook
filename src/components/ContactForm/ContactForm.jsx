@@ -1,8 +1,9 @@
-import { Formik, Field } from 'formik';
+import { Formik, Field, Form } from 'formik';
 import { nanoid } from 'nanoid';
 import { addContact } from 'redux/contactSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import * as yup from 'yup';
+import css from './ContactForm.module.css';
 
 export default function ContactForm() {
   const initialValues = { name: '', number: '' };
@@ -31,18 +32,27 @@ export default function ContactForm() {
       onSubmit={onSubmit}
       validationSchema={validSchema}
     >
-      <form>
+      <Form className={css.contactForm}>
         <label htmlFor="nameId">Name</label>
-        <Field type="text" name="name" placeholder="Contact name" id="nameId" />
+        <Field
+          className={css.contactInput}
+          type="text"
+          name="name"
+          placeholder="Contact name"
+          id="nameId"
+        />
         <label htmlFor="numId">Number</label>
         <Field
+          className={css.contactInput}
           type="tel"
           name="number"
           placeholder="xxx-xxx-xx-xx"
           id="numId"
         />
-        <button type="submit">Add contact</button>
-      </form>
+        <button type="submit" className={css.formButton}>
+          Add contact
+        </button>
+      </Form>
     </Formik>
   );
 }

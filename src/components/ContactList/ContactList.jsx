@@ -1,4 +1,5 @@
 import { useSelector } from 'react-redux';
+import css from './ContactList.module.css';
 
 const ContactList = ({ onRemoveContact }) => {
   const { contacts } = useSelector(state => state.contacts);
@@ -17,12 +18,22 @@ const ContactList = ({ onRemoveContact }) => {
   const filteredContacts = onFilterContacts();
 
   return (
-    <ul>
+    <ul className={css.contactList}>
       {filteredContacts.map(({ name, id, number }) => (
-        <li key={id} name={name} id={id} number={number}>
-          <span>{name}:</span>
-          <span>{number}</span>
-          <button type="button" onClick={() => onRemoveContact(id)}>
+        <li
+          className={css.contactListItem}
+          key={id}
+          name={name}
+          id={id}
+          number={number}
+        >
+          <span className={css.itemSpan}>{name}:</span>
+          <span className={css.itemSpan}>{number}</span>
+          <button
+            className={css.deleteButton}
+            type="button"
+            onClick={() => onRemoveContact(id)}
+          >
             Delete
           </button>
         </li>
